@@ -1,3 +1,11 @@
+/* Genel Stiller ve Mobil Uyumluluk */
+:root {
+    --primary-color: #E94E77;
+    --secondary-color: #F2A3B3;
+    --text-color: #333;
+    --bg-gradient: linear-gradient(135deg, #fde4e4, #f8c4c4, #f9a7a7);
+}
+
 body {
     font-family: 'Open Sans', sans-serif;
     display: flex;
@@ -5,20 +13,20 @@ body {
     align-items: center;
     height: 100vh;
     margin: 0;
-    background: linear-gradient(135deg, #fde4e4, #f8c4c4, #f9a7a7);
+    background: var(--bg-gradient);
     overflow: hidden;
     perspective: 1000px;
 }
 
 .container {
     text-align: center;
-    background: rgba(255, 255, 255, 0.85);
-    padding: 40px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 30px;
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     transition: opacity 0.5s ease, transform 0.5s ease;
-    max-width: 500px;
-    width: 90%;
+    max-width: 90%;
+    width: 450px;
 }
 
 .hidden {
@@ -30,28 +38,23 @@ body {
 
 h1 {
     font-family: 'Dancing Script', cursive;
-    font-size: 2.8em;
-    color: #d14267;
+    font-size: 2.5em;
+    color: var(--primary-color);
     margin-bottom: 20px;
 }
 
 input, textarea {
     width: 100%;
-    padding: 15px;
-    margin-bottom: 20px;
+    padding: 12px;
+    margin-bottom: 15px;
     border: 1px solid #ddd;
     border-radius: 10px;
     font-size: 1em;
     box-sizing: border-box;
 }
 
-textarea {
-    height: 100px;
-    resize: none;
-}
-
 button {
-    background-color: #ff6b8f;
+    background-color: var(--primary-color);
     color: white;
     border: none;
     padding: 15px 30px;
@@ -59,30 +62,31 @@ button {
     font-size: 1.1em;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    transition: background-color 0.3s, transform 0.2s;
 }
 
 button:hover {
-    background-color: #ff4777;
+    background-color: #d14267;
     transform: translateY(-2px);
 }
 
-#share-container {
-    margin-top: 20px;
+/* Pinyata Stilleri */
+#pinata-svg {
+    cursor: pointer;
+    transition: transform 0.1s ease;
 }
 
-#share-container p {
-    margin-bottom: 10px;
-    color: #555;
+#pinata-svg.shake {
+    animation: shake 0.5s;
 }
 
-#copy-feedback {
-    color: #28a745;
-    font-weight: bold;
-    margin-top: 10px;
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-10px) rotate(-5deg); }
+    20%, 40%, 60%, 80% { transform: translateX(10px) rotate(5deg); }
 }
 
-/* Celebration Screen */
+/* Kutlama Stilleri */
 .letter-wrapper {
     position: relative;
     width: 300px;
@@ -96,83 +100,112 @@ button:hover {
     position: absolute;
     width: 100%;
     height: 100%;
-    transform-style: preserve-3d;
-    transform: rotateX(-180deg);
-    transition: transform 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-}
-
-.letter-wrapper.open .letter {
-    transform: rotateX(0deg);
-}
-
-.letter-front, .letter-back {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
-    background-color: #fff0f3;
-    border: 1px solid #ffc2d1;
+    background: white;
     border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transform: translateY(100vh);
+    opacity: 0;
+    transition: transform 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 1s;
 }
 
-.letter-front {
-    transform: rotateX(180deg);
-}
-
-.letter-back {
-    background-image: linear-gradient(45deg, #ffc2d1 25%, transparent 25%), 
-                      linear-gradient(-45deg, #ffc2d1 25%, transparent 25%),
-                      linear-gradient(45deg, transparent 75%, #ffc2d1 75%),
-                      linear-gradient(-45deg, transparent 75%, #ffc2d1 75%);
-    background-size: 20px 20px;
+.letter.open {
+    transform: translateY(0);
+    opacity: 1;
 }
 
 .letter-content {
-    position: absolute;
-    width: 100%;
-    height: 100%;
     padding: 20px;
-    box-sizing: border-box;
-    background: white;
-    border-radius: 10px;
-    transform: translateZ(-1px) rotateX(180deg);
-    color: #333;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-h2 {
-    font-family: 'Dancing Script', cursive;
-    font-size: 2.5em;
-    color: #d14267;
-    margin: 0;
-}
-
-p {
-    font-size: 1.2em;
-    line-height: 1.6;
 }
 
 .cake-container {
     position: absolute;
-    bottom: -150px; /* Start off-screen */
+    bottom: -150px;
     left: 50%;
     transform: translateX(-50%);
     width: 150px;
-    transition: bottom 1s ease-out 1.5s; /* Delay to sync with letter */
+    transition: bottom 1s ease-out 1.5s;
 }
 
 .cake-container.visible {
     bottom: 20px;
 }
 
-#birthday-cake #flame {
+#flame {
     animation: flicker 1.5s ease-in-out infinite;
+    transform-origin: bottom center;
 }
 
 @keyframes flicker {
     0%, 100% { transform: scaleY(1); opacity: 1; }
     50% { transform: scaleY(0.95) skewX(2deg); opacity: 0.9; }
+}
+
+/* Mum Üfleme Animasyonu */
+#blower {
+    position: absolute;
+    left: -100px;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: left 1s ease-in-out;
+}
+
+#blower.blow {
+    left: 10px;
+}
+
+#flame.puff {
+    animation: puff-out 0.5s ease-out forwards;
+}
+
+@keyframes puff-out {
+    0% { transform: scale(1.2, 1.2); opacity: 1; }
+    50% { transform: scale(0.5, 1.5) translateX(10px); opacity: 0.5; }
+    100% { transform: scale(0, 0); opacity: 0; }
+}
+
+/* Final Ekranı */
+.final-message-container {
+    background: rgba(0, 0, 0, 0);
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 2s ease;
+    z-index: 100;
+}
+
+.final-message-container.darken {
+    background: rgba(0, 0, 0, 1);
+}
+
+.final-message-container p, .final-message-container h1 {
+    color: white;
+    text-align: center;
+    padding: 20px;
+    font-family: 'Dancing Script', cursive;
+}
+
+#wish-prompt {
+    font-size: 1.8em;
+    opacity: 0;
+    transition: opacity 1s ease 1s;
+}
+
+#wish-prompt.visible {
+    opacity: 1;
+}
+
+#final-message {
+    font-size: 3em;
+}
+
+/* Mobil Cihazlar için Ekran Boyutu Ayarları */
+@media (max-width: 600px) {
+    h1 { font-size: 2em; }
+    .container { padding: 20px; }
+    .letter-wrapper { width: 90%; height: auto; padding-bottom: 66%; }
+    .cake-container { width: 120px; }
+    #final-message { font-size: 2.2em; }
 }

@@ -1,199 +1,190 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Get all containers and elements
+    // --- Elementleri Seçme ---
     const formContainer = document.getElementById('form-container');
-    const invitationContainer = document.getElementById('invitation-container');
+    const pinataContainer = document.getElementById('pinata-container');
     const celebrationContainer = document.getElementById('celebration-container');
-    
+    const finalMessageContainer = document.getElementById('final-message-container');
+
     const createButton = document.getElementById('create-button');
     const nameInput = document.getElementById('name-input');
     const messageInput = document.getElementById('message-input');
 
-    const invitationHeading = document.getElementById('invitation-heading');
-    const showCelebrationButton = document.getElementById('show-celebration-button');
+    const pinataHeading = document.getElementById('pinata-heading');
+    const pinataSvg = document.getElementById('pinata-svg');
 
+    const letter = document.getElementById('letter');
+    const cakeContainer = document.getElementById('cake-container');
+    const blower = document.getElementById('blower');
+    const flame = document.getElementById('flame');
+
+    const wishPrompt = document.getElementById('wish-prompt');
+    const finalMessage = document.getElementById('final-message');
+
+    // --- Değişkenler ---
     let audioContext;
+    let pinataClicks = 0;
 
-    // --- Core Functions (Audio, Confetti, etc.) ---
+    // --- Ses Fonksiyonları ---
     const createAudioContext = () => {
         if (!audioContext) {
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
         }
     };
 
-    const playNote = (frequency, duration, startTime) => {
+    const playSound = (type, time) => {
         if (!audioContext) return;
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
         oscillator.connect(gainNode);
         gainNode.connect(audioContext.destination);
-        oscillator.type = 'sine';
-        oscillator.frequency.value = frequency;
-        gainNode.gain.setValueAtTime(0, startTime);
-        gainNode.gain.linearRampToValueAtTime(0.5, startTime + 0.1);
-        gainNode.gain.linearRampToValueAtTime(0, startTime + duration);
-        oscillator.start(startTime);
-        oscillator.stop(startTime + duration);
+
+        if (type === 'crack') {
+            oscillator.type = 'sawtooth';
+            oscillator.frequency.setValueAtTime(80, time);
+            gainNode.gain.setValueAtTime(0.3, time);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, time + 0.1);
+        } else if (type === 'whoosh') {
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(400, time);
+            oscillator.frequency.exponentialRampToValueAtTime(100, time + 0.3);
+            gainNode.gain.setValueAtTime(0.4, time);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, time + 0.3);
+        }
+
+        oscillator.start(time);
+        oscillator.stop(time + 0.3);
     };
 
     const playBirthdaySong = () => {
-        createAudioContext();
-        const now = audioContext.currentTime;
-        const tempo = 2.2;
         const notes = [
-            { freq: 261.63, dur: 0.5 / tempo }, { freq: 261.63, dur: 0.5 / tempo },
-            { freq: 293.66, dur: 1 / tempo }, { freq: 261.63, dur: 1 / tempo },
-            { freq: 349.23, dur: 1 / tempo }, { freq: 329.63, dur: 2 / tempo },
-            { freq: 261.63, dur: 0.5 / tempo }, { freq: 261.63, dur: 0.5 / tempo },
-            { freq: 293.66, dur: 1 / tempo }, { freq: 261.63, dur: 1 / tempo },
-            { freq: 392.00, dur: 1 / tempo }, { freq: 349.23, dur: 2 / tempo },
-            { freq: 261.63, dur: 0.5 / tempo }, { freq: 261.63, dur: 0.5 / tempo },
-            { freq: 523.25, dur: 1 / tempo }, { freq: 440.00, dur: 1 / tempo },
-            { freq: 349.23, dur: 1 / tempo }, { freq: 329.63, dur: 1 / tempo },
-            { freq: 293.66, dur: 2 / tempo },
-            { freq: 466.16, dur: 0.5 / tempo }, { freq: 466.16, dur: 0.5 / tempo },
-            { freq: 440.00, dur: 1 / tempo }, { freq: 349.23, dur: 1 / tempo },
-            { freq: 392.00, dur: 1 / tempo }, { freq: 349.23, dur: 2 / tempo },
+            { f: 261.63, d: 0.2 }, { f: 261.63, d: 0.2 }, { f: 293.66, d: 0.4 }, { f: 261.63, d: 0.4 },
+            { f: 349.23, d: 0.4 }, { f: 329.63, d: 0.8 }, { f: 261.63, d: 0.2 }, { f: 261.63, d: 0.2 },
+            { f: 293.66, d: 0.4 }, { f: 261.63, d: 0.4 }, { f: 392.00, d: 0.4 }, { f: 349.23, d: 0.8 },
         ];
-        let currentTime = now + 0.5;
+        let currentTime = audioContext.currentTime + 0.5;
         notes.forEach(note => {
-            playNote(note.freq, note.dur, currentTime);
-            currentTime += note.dur;
+            const oscillator = audioContext.createOscillator();
+            oscillator.frequency.value = note.f;
+            oscillator.connect(audioContext.destination);
+            oscillator.start(currentTime);
+            oscillator.stop(currentTime + note.d);
+            currentTime += note.d;
         });
     };
 
+    // --- Animasyon ve Geçiş Fonksiyonları ---
     const launchConfetti = () => {
-        const duration = 5 * 1000;
-        const animationEnd = Date.now() + duration;
-        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
-        function randomInRange(min, max) { return Math.random() * (max - min) + min; }
-        const interval = setInterval(() => {
-            const timeLeft = animationEnd - Date.now();
-            if (timeLeft <= 0) return clearInterval(interval);
-            const particleCount = 50 * (timeLeft / duration);
-            confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
-            confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
-        }, 250);
+        confetti({ particleCount: 150, spread: 180, origin: { y: 0.6 } });
     };
 
-    // --- Main Application Flow ---
+    const startFinalScene = () => {
+        celebrationContainer.classList.add('hidden');
+        finalMessageContainer.classList.remove('hidden');
+        wishPrompt.classList.add('visible');
 
-    // 3. Start the actual celebration
-    const startTheShow = (name, message) => {
-        invitationContainer.classList.add('hidden');
-        celebrationContainer.classList.remove('hidden');
-        
-        document.getElementById('celebration-name').textContent = `İyi ki doğdun ${name}!`;
-        document.getElementById('celebration-message').textContent = message;
+        cakeContainer.style.transition = 'none'; // Anlık pozisyon için
+        cakeContainer.style.bottom = '50%';
+        cakeContainer.style.transform = 'translateX(-50%) translateY(50%) scale(1.5)';
+        finalMessageContainer.appendChild(cakeContainer);
 
-        playBirthdaySong(); // This is now a direct result of user interaction
+        cakeContainer.addEventListener('click', blowOutCandle, { once: true });
+    };
+
+    const blowOutCandle = () => {
+        wishPrompt.classList.remove('visible');
+        playSound('whoosh', audioContext.currentTime);
+        blower.classList.remove('hidden');
+        blower.classList.add('blow');
 
         setTimeout(() => {
-            document.querySelector('.letter-wrapper').classList.add('open');
+            flame.classList.add('puff');
         }, 500);
 
         setTimeout(() => {
-            document.getElementById('cake-container').classList.add('visible');
-            launchConfetti();
+            finalMessageContainer.classList.add('darken');
+            cakeContainer.classList.add('hidden');
+            finalMessage.classList.remove('hidden');
         }, 2000);
     };
 
-    // 2. Check for a shared link and show the invitation
+    const startCelebration = (name, message) => {
+        pinataContainer.classList.add('hidden');
+        celebrationContainer.classList.remove('hidden');
+
+        document.getElementById('celebration-name').textContent = `İyi ki doğdun ${name}!`;
+        document.getElementById('celebration-message').textContent = message;
+
+        playBirthdaySong();
+
+        setTimeout(() => letter.classList.add('open'), 500);
+        setTimeout(() => cakeContainer.classList.add('visible'), 2000);
+        setTimeout(launchConfetti, 2500);
+        setTimeout(startFinalScene, 8000); // Final sahnesine geçiş
+    };
+
+    const handlePinataClick = (name, message) => {
+        createAudioContext();
+        playSound('crack', audioContext.currentTime);
+        pinataClicks++;
+        pinataSvg.classList.add('shake');
+        setTimeout(() => pinataSvg.classList.remove('shake'), 500);
+
+        if (pinataClicks > 5) {
+            pinataSvg.removeEventListener('click', handlePinataClick);
+            startCelebration(name, message);
+        }
+    };
+
+    // --- Ana Mantık ---
     const checkForInvitation = () => {
         const urlParams = new URLSearchParams(window.location.search);
         const data = urlParams.get('q');
         if (data) {
             try {
-                const decoded = atob(data);
-                const [name, message] = decoded.split('|');
+                const [name, message] = atob(data).split('|');
                 if (name) {
                     formContainer.classList.add('hidden');
-                    invitationContainer.classList.remove('hidden');
-                    invitationHeading.textContent = `${name}, sana bir doğum günü sürprizi var!`;
-
-                    showCelebrationButton.addEventListener('click', () => {
-                        startTheShow(name, message || 'Sana harika bir yıl diliyorum!');
-                    }, { once: true });
+                    pinataContainer.classList.remove('hidden');
+                    pinataHeading.textContent = `${name}, sana bir sürprizim var!`;
+                    pinataSvg.addEventListener('click', () => handlePinataClick(name, message || 'Sana harika bir yıl diliyorum!'));
                 }
-            } catch (e) {
-                console.error('Failed to decode invitation data:', e);
-            }
+            } catch (e) { console.error('Link verisi okunamadı:', e); }
         }
     };
 
-    // 1. Create and share/copy the link
-    const fallbackCopyToClipboard = (text) => {
-        const textArea = document.createElement('textarea');
-        textArea.value = text;
-        textArea.style.position = 'fixed';
-        textArea.style.opacity = '0';
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
+    const copyToClipboard = async (text) => {
+        const notify = () => {
+            const originalText = createButton.textContent;
+            createButton.textContent = 'Kopyalandı!';
+            createButton.disabled = true;
+            setTimeout(() => {
+                createButton.textContent = originalText;
+                createButton.disabled = false;
+            }, 2000);
+        };
         try {
-            const successful = document.execCommand('copy');
-            document.body.removeChild(textArea);
-            return successful;
+            await navigator.clipboard.writeText(text);
+            notify();
         } catch (err) {
-            document.body.removeChild(textArea);
-            return false;
+            alert('Kopyalanamadı. Lütfen manuel olarak kopyalayın.');
         }
-    };
-
-    const notifySuccess = () => {
-        const originalText = createButton.textContent;
-        createButton.textContent = 'Kopyalandı!';
-        createButton.disabled = true;
-        setTimeout(() => {
-            createButton.textContent = originalText;
-            createButton.disabled = false;
-        }, 2000);
     };
 
     createButton.addEventListener('click', async () => {
         const name = nameInput.value.trim();
-        if (!name) {
-            alert('Lütfen bir isim girin.');
-            return;
-        }
+        if (!name) return alert('Lütfen bir isim girin.');
         const message = messageInput.value.trim();
-        const data = `${name}|${message}`;
-        const encoded = btoa(data);
-        const url = `${window.location.origin}${window.location.pathname}?q=${encoded}`;
+        const url = `${window.location.origin}${window.location.pathname}?q=${btoa(`${name}|${message}`)}`;
 
-        const shareData = {
-            title: 'Doğum Günü Sürprizi!',
-            text: `${name} için bir doğum günü kartın var!`,
-            url: url
-        };
-
-        if (navigator.share && navigator.canShare(shareData)) {
+        const shareData = { title: 'Doğum Günü Sürprizi!', text: `${name} için bir sürprizin var!`, url };
+        if (navigator.share) {
             try {
                 await navigator.share(shareData);
-            } catch (err) {
-                console.error('Share failed:', err);
-            }
+            } catch (err) { console.error('Paylaşım hatası:', err); }
         } else {
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                try {
-                    await navigator.clipboard.writeText(url);
-                    notifySuccess();
-                } catch (err) {
-                    if (fallbackCopyToClipboard(url)) {
-                        notifySuccess();
-                    } else {
-                        alert('Link kopyalanamadı.');
-                    }
-                }
-            } else {
-                if (fallbackCopyToClipboard(url)) {
-                    notifySuccess();
-                } else {
-                    alert('Link kopyalanamadı.');
-                }
-            }
+            copyToClipboard(url);
         }
     });
 
-    // Initial check on page load
     checkForInvitation();
 });

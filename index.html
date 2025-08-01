@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- 1. Form Ekranı -->
     <div class="container" id="form-container">
         <h1>Kimin Doğum Gününü Kutlamak İstersin?</h1>
         <input type="text" id="name-input" placeholder="Arkadaşının Adı" aria-label="Arkadaşının Adı">
@@ -17,16 +18,25 @@
         <button id="create-button">Paylaşım Linki Oluştur</button>
     </div>
 
-    <div class="container hidden" id="invitation-container">
-        <h1 id="invitation-heading"></h1>
-        <button id="show-celebration-button">Sürprizi Gör!</button>
+    <!-- 2. Pinyata Oyunu Ekranı -->
+    <div class="container hidden" id="pinata-container">
+        <h1 id="pinata-heading"></h1>
+        <p>Sürprizi görmek için pinyataya dokunarak kır!</p>
+        <svg id="pinata-svg" viewBox="0 0 200 200" width="200" height="200">
+            <g id="pinata-body">
+                <path d="M 50,50 Q 100,20 150,50 T 150,150 Q 100,180 50,150 T 50,50 Z" fill="#E94E77"/>
+                <path d="M 70,70 Q 100,50 130,70" stroke="#f7a8b8" stroke-width="5" fill="none"/>
+                <path d="M 60,100 L 140,100" stroke="#f7a8b8" stroke-width="5" fill="none"/>
+                <path d="M 70,130 Q 100,150 130,130" stroke="#f7a8b8" stroke-width="5" fill="none"/>
+            </g>
+            <path id="pinata-string" d="M 100,50 L 100,10" stroke="brown" stroke-width="3"/>
+        </svg>
     </div>
 
+    <!-- 3. Ana Kutlama Ekranı -->
     <div class="container hidden" id="celebration-container">
         <div class="letter-wrapper">
             <div class="letter" id="letter">
-                <div class="letter-front"></div>
-                <div class="letter-back"></div>
                 <div class="letter-content">
                     <h2 id="celebration-name"></h2>
                     <p id="celebration-message"></p>
@@ -34,21 +44,29 @@
             </div>
         </div>
         <div class="cake-container" id="cake-container">
-            <!-- Gömülü SVG Pasta -->
             <svg id="birthday-cake" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                 <g id="cake-layers">
                     <rect x="20" y="60" width="60" height="20" fill="#F2A3B3"/>
-                    <rect x="20" y="65" width="60" height="5" fill="#FFFFFF" opacity="0.6"/>
                     <rect x="25" y="45" width="50" height="15" fill="#F5C4CF"/>
-                    <rect x="25" y="50" width="50" height="3" fill="#FFFFFF" opacity="0.6"/>
                 </g>
-                <g id="candles">
+                <g id="candle">
                     <rect x="48" y="30" width="4" height="15" fill="#FFD700"/>
-                    <path d="M 50 30 Q 52 25 50 20 Q 48 25 50 30" fill="#FFA500" id="flame"/>
+                    <path id="flame" d="M 50 30 Q 52 25 50 20 Q 48 25 50 30" fill="#FFA500"/>
                 </g>
                 <rect x="15" y="80" width="70" height="5" fill="#E0E0E0" rx="2"/>
             </svg>
         </div>
+        <svg id="blower" class="hidden" viewBox="0 0 100 100" width="100" height="100">
+            <circle cx="50" cy="50" r="30" fill="#ffcc80"/>
+            <circle cx="60" cy="45" r="5" fill="black"/>
+            <path d="M 40,60 Q 50,70 60,60" stroke="black" stroke-width="3" fill="none"/>
+        </svg>
+    </div>
+
+    <!-- 4. Final Ekranı -->
+    <div class="final-message-container hidden" id="final-message-container">
+        <p id="wish-prompt">Bir dilek tut ve mumu üflemek için pastaya dokun!</p>
+        <h1 id="final-message" class="hidden">Tüm dileklerinin gerçek olması dileğiyle!</h1>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
