@@ -104,6 +104,36 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const fallbackCopyToClipboard = (text) => {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed'; 
+        textArea.style.top = '0';
+        textArea.style.left = '0';
+        textArea.style.opacity = '0';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            const successful = document.execCommand('copy');
+            document.body.removeChild(textArea);
+            return successful;
+        } catch (err) {
+            document.body.removeChild(textArea);
+            return false;
+        }
+    };
+
+    const notifySuccess = () => {
+        const originalText = createButton.textContent;
+        createButton.textContent = 'Kopyalandı!';
+        createButton.disabled = true;
+        setTimeout(() => {
+            createButton.textContent = originalText;
+            createButton.disabled = false;
+        }, 2000);
+    };
+
     createButton.addEventListener('click', async () => {
         const name = nameInput.value.trim();
         if (!name) {
@@ -128,18 +158,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('Share failed:', err);
             }
         } else {
-            try {
-                await navigator.clipboard.writeText(url);
-                const originalText = createButton.textContent;
-                createButton.textContent = 'Kopyalandı!';
-                createButton.disabled = true;
-                setTimeout(() => {
-                    createButton.textContent = originalText;
-                    createButton.disabled = false;
-                }, 2000);
-            } catch (err) {
-                console.error('Failed to copy to clipboard:', err);
-                alert('Link kopyalanamadı. Lütfen tekrar deneyin.');
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                try {
+                    await navigator.clipboard.writeText(url);
+                    notifySuccess();
+                } catch (err) {
+                    console.error('Modern copy failed, trying fallback:', err);
+                    if (fallbackCopyToClipboard(url)) {
+                        notifySuccess();
+                    } else {
+                        alert('Link kopyalanamadı.');
+                    }
+                }
+            } else {
+                if (fallbackCopyToClipboard(url)) {
+                    notifySuccess();
+                } else {
+                    alert('Link kopyalanamadı.');
+                }
             }
         }
     });
