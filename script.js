@@ -11,6 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const pinataHeading = document.getElementById('pinata-heading');
     const pinataSvg = document.getElementById('pinata-svg');
+    const pinataBody = document.getElementById('pinata-body');
+    const cracks = document.querySelectorAll('.crack');
 
     const letter = document.getElementById('letter');
     const cakeContainer = document.getElementById('cake-container');
@@ -23,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Değişkenler ---
     let audioContext;
     let pinataClicks = 0;
+    const MAX_CLICKS = 4;
 
     // --- Ses Fonksiyonları ---
     const createAudioContext = () => {
@@ -40,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (type === 'crack') {
             oscillator.type = 'sawtooth';
-            oscillator.frequency.setValueAtTime(80, time);
+            oscillator.frequency.setValueAtTime(80 + Math.random() * 40, time);
             gainNode.gain.setValueAtTime(0.3, time);
             gainNode.gain.exponentialRampToValueAtTime(0.01, time + 0.1);
         } else if (type === 'whoosh') {
@@ -78,11 +81,11 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const startFinalScene = () => {
-        celebrationContainer.classList.add('hidden');
+        celebrationContainer.style.opacity = '0';
         finalMessageContainer.classList.remove('hidden');
         wishPrompt.classList.add('visible');
 
-        cakeContainer.style.transition = 'none'; // Anlık pozisyon için
+        cakeContainer.style.transition = 'none';
         cakeContainer.style.bottom = '50%';
         cakeContainer.style.transform = 'translateX(-50%) translateY(50%) scale(1.5)';
         finalMessageContainer.appendChild(cakeContainer);
@@ -102,36 +105,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
         setTimeout(() => {
             finalMessageContainer.classList.add('darken');
-            cakeContainer.classList.add('hidden');
+            cakeContainer.style.opacity = '0';
             finalMessage.classList.remove('hidden');
         }, 2000);
     };
 
     const startCelebration = (name, message) => {
-        pinataContainer.classList.add('hidden');
-        celebrationContainer.classList.remove('hidden');
+        pinataContainer.style.opacity = '0';
+        setTimeout(() => {
+            pinataContainer.classList.add('hidden');
+            celebrationContainer.classList.remove('hidden');
 
-        document.getElementById('celebration-name').textContent = `İyi ki doğdun ${name}!`;
-        document.getElementById('celebration-message').textContent = message;
+            document.getElementById('celebration-name').textContent = `İyi ki doğdun ${name}!`;
+            document.getElementById('celebration-message').textContent = message;
 
-        playBirthdaySong();
+            playBirthdaySong();
 
-        setTimeout(() => letter.classList.add('open'), 500);
-        setTimeout(() => cakeContainer.classList.add('visible'), 2000);
-        setTimeout(launchConfetti, 2500);
-        setTimeout(startFinalScene, 8000); // Final sahnesine geçiş
+            setTimeout(() => letter.classList.add('open'), 500);
+            setTimeout(() => cakeContainer.classList.add('visible'), 2000);
+            setTimeout(launchConfetti, 2500);
+            setTimeout(startFinalScene, 8000);
+        }, 500);
     };
 
-    const handlePinataClick = (name, message) => {
+    const handlePinataClick = (event) => {
         createAudioContext();
         playSound('crack', audioContext.currentTime);
         pinataClicks++;
         pinataSvg.classList.add('shake');
         setTimeout(() => pinataSvg.classList.remove('shake'), 500);
 
-        if (pinataClicks > 5) {
+        if (pinataClicks <= cracks.length) {
+            document.getElementById(`crack${pinataClicks}`).style.opacity = '1';
+        }
+
+        if (pinataClicks >= MAX_CLICKS) {
             pinataSvg.removeEventListener('click', handlePinataClick);
-            startCelebration(name, message);
+            pinataBody.classList.add('broken');
+            launchConfetti();
+            const { name, message } = event.currentTarget.dataset;
+            setTimeout(() => startCelebration(name, message), 500);
         }
     };
 
@@ -146,7 +159,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     formContainer.classList.add('hidden');
                     pinataContainer.classList.remove('hidden');
                     pinataHeading.textContent = `${name}, sana bir sürprizim var!`;
-                    pinataSvg.addEventListener('click', () => handlePinataClick(name, message || 'Sana harika bir yıl diliyorum!'));
+                    pinataSvg.dataset.name = name;
+                    pinataSvg.dataset.message = message || 'Sana harika bir yıl diliyorum!';
+                    pinataSvg.addEventListener('click', handlePinataClick);
                 }
             } catch (e) { console.error('Link verisi okunamadı:', e); }
         }
@@ -180,7 +195,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (navigator.share) {
             try {
                 await navigator.share(shareData);
-            } catch (err) { console.error('Paylaşım hatası:', err); }
+            } catch (err) { 
+                if (err.name !== 'AbortError') {
+                    console.error('Paylaşım hatası:', err);
+                    copyToClipboard(url); // Paylaşım iptal edilirse kopyala
+                }
+            }
         } else {
             copyToClipboard(url);
         }
