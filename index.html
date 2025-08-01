@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doğum Günü Sürprizi</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container" id="form-container">
+        <h1>Kimin Doğum Gününü Kutlamak İstersin?</h1>
+        <input type="text" id="name-input" placeholder="Arkadaşının Adı" aria-label="Arkadaşının Adı">
+        <textarea id="message-input" placeholder="Özel Mesajın (isteğe bağlı)" aria-label="Özel Mesajın"></textarea>
+        <button id="create-button">Kutlama Kartı Oluştur</button>
+        <div id="share-container" class="hidden">
+            <p>Arkadaşınla paylaşmak için butona tıkla:</p>
+            <button id="share-button">Paylaş</button>
+            <p id="copy-feedback" class="hidden">Link panoya kopyalandı!</p>
+        </div>
+    </div>
+
+    <div class="container hidden" id="celebration-container">
+        <div class="letter-wrapper">
+            <div class="letter" id="letter">
+                <div class="letter-front"></div>
+                <div class="letter-back"></div>
+                <div class="letter-content">
+                    <h2 id="celebration-name"></h2>
+                    <p id="celebration-message"></p>
+                </div>
+            </div>
+        </div>
+        <div class="cake-container" id="cake-container">
+            <!-- Gömülü SVG Pasta -->
+            <svg id="birthday-cake" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <g id="cake-layers">
+                    <rect x="20" y="60" width="60" height="20" fill="#F2A3B3"/>
+                    <rect x="20" y="65" width="60" height="5" fill="#FFFFFF" opacity="0.6"/>
+                    <rect x="25" y="45" width="50" height="15" fill="#F5C4CF"/>
+                    <rect x="25" y="50" width="50" height="3" fill="#FFFFFF" opacity="0.6"/>
+                </g>
+                <g id="candles">
+                    <rect x="48" y="30" width="4" height="15" fill="#FFD700"/>
+                    <path d="M 50 30 Q 52 25 50 20 Q 48 25 50 30" fill="#FFA500" id="flame"/>
+                </g>
+                <rect x="15" y="80" width="70" height="5" fill="#E0E0E0" rx="2"/>
+            </svg>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
