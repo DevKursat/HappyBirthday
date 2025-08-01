@@ -19,15 +19,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const blower = document.getElementById('blower');
     const flame = document.getElementById('flame');
 
-    const wishPrompt = document.getElementById('wish-prompt');
     const finalMessage = document.getElementById('final-message');
 
     // --- Değişkenler ---
     let audioContext;
     let pinataClicks = 0;
     const MAX_CLICKS = 4;
+    let micStream;
+    let analyser;
 
-    // --- Ses Fonksiyonları ---
+    // --- Ses ve Mikrofon Fonksiyonları ---
     const createAudioContext = () => {
         if (!audioContext) {
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -75,26 +76,34 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    const listenToMic = () => {
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+        analyser.getByteFrequencyData(dataArray);
+        let sum = 0;
+        dataArray.forEach(value => sum += value);
+        const average = sum / dataArray.length;
+
+        if (average > 60) { // Eşik değeri - üfleme hassasiyeti
+            blowOutCandle();
+        }
+        if (micStream && micStream.active) {
+            requestAnimationFrame(listenToMic);
+        }
+    };
+
     // --- Animasyon ve Geçiş Fonksiyonları ---
     const launchConfetti = () => {
         confetti({ particleCount: 150, spread: 180, origin: { y: 0.6 } });
     };
 
-    const startFinalScene = () => {
-        celebrationContainer.style.opacity = '0';
-        finalMessageContainer.classList.remove('hidden');
-        wishPrompt.classList.add('visible');
-
-        cakeContainer.style.transition = 'none';
-        cakeContainer.style.bottom = '50%';
-        cakeContainer.style.transform = 'translateX(-50%) translateY(50%) scale(1.5)';
-        finalMessageContainer.appendChild(cakeContainer);
-
-        cakeContainer.addEventListener('click', blowOutCandle, { once: true });
-    };
-
     const blowOutCandle = () => {
-        wishPrompt.classList.remove('visible');
+        if (micStream) micStream.getTracks().forEach(track => track.stop());
+        cakeContainer.removeEventListener('click', blowOutCandle);
+
+        const currentWishPrompt = cakeContainer.querySelector('#wish-prompt');
+        if (currentWishPrompt) {
+            currentWishPrompt.style.opacity = '0';
+        }
         playSound('whoosh', audioContext.currentTime);
         blower.classList.remove('hidden');
         blower.classList.add('blow');
@@ -108,6 +117,42 @@ document.addEventListener('DOMContentLoaded', () => {
             cakeContainer.style.opacity = '0';
             finalMessage.classList.remove('hidden');
         }, 2000);
+    };
+
+    const startFinalScene = async () => {
+        celebrationContainer.style.opacity = '0';
+        finalMessageContainer.classList.remove('hidden');
+        wishPrompt.classList.add('visible');
+
+        cakeContainer.style.transition = 'none';
+        cakeContainer.style.bottom = '50%';
+        cakeContainer.style.transform = 'translateX(-50%) translateY(50%) scale(1.5)';
+        
+        // wishPrompt'u dinamik olarak oluştur ve cakeContainer içine ekle
+        const wishPrompt = document.createElement('p');
+        wishPrompt.id = 'wish-prompt';
+        wishPrompt.classList.add('visible'); // Başlangıçta görünür yap
+        cakeContainer.appendChild(wishPrompt);
+
+        // Mikrofonu ayarlamayı dene
+        try {
+            micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            analyser = audioContext.createAnalyser();
+            const source = audioContext.createMediaStreamSource(micStream);
+            source.connect(analyser);
+            wishPrompt.textContent = 'Bir dilek tut ve ekrana doğru üfle!';
+            listenToMic();
+        } catch (err) {
+            console.error('Mikrofon erişimi reddedildi veya bulunamadı:', err);
+            wishPrompt.textContent = 'Bir dilek tut ve mumu üflemek için pastaya dokun!';
+        }
+        // Her durumda dokunma alternatifini ekle
+        cakeContainer.addEventListener('click', blowOutCandle, { once: true });
+
+        // finalMessageContainer'a cakeContainer'ı ekle (eğer henüz eklenmediyse)
+        if (!finalMessageContainer.contains(cakeContainer)) {
+            finalMessageContainer.appendChild(cakeContainer);
+        }
     };
 
     const startCelebration = (name, message) => {
@@ -180,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const fallbackCopyToClipboard = (text) => {
         const textArea = document.createElement("textarea");
         textArea.value = text;
-        textArea.style.position = "fixed"; // Make it invisible
+        textArea.style.position = "fixed"; 
         textArea.style.top = "-9999px";
         document.body.appendChild(textArea);
         textArea.focus();
