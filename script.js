@@ -167,42 +167,64 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const copyToClipboard = async (text) => {
-        const notify = () => {
-            const originalText = createButton.textContent;
-            createButton.textContent = 'Kopyalandı!';
-            createButton.disabled = true;
-            setTimeout(() => {
-                createButton.textContent = originalText;
-                createButton.disabled = false;
-            }, 2000);
-        };
+    const notifySuccess = (text) => {
+        const originalText = createButton.textContent;
+        createButton.textContent = text;
+        createButton.disabled = true;
+        setTimeout(() => {
+            createButton.textContent = originalText;
+            createButton.disabled = false;
+        }, 2000);
+    };
+
+    const fallbackCopyToClipboard = (text) => {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed"; // Make it invisible
+        textArea.style.top = "-9999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
         try {
-            await navigator.clipboard.writeText(text);
-            notify();
+            document.execCommand('copy');
+            notifySuccess('Kopyalandı!');
         } catch (err) {
-            alert('Kopyalanamadı. Lütfen manuel olarak kopyalayın.');
+            alert('Link otomatik kopyalanamadı. Lütfen manuel olarak kopyalayın.');
         }
+        document.body.removeChild(textArea);
     };
 
     createButton.addEventListener('click', async () => {
         const name = nameInput.value.trim();
         if (!name) return alert('Lütfen bir isim girin.');
         const message = messageInput.value.trim();
-        const url = `${window.location.origin}${window.location.pathname}?q=${btoa(`${name}|${message}`)}`;
+        const url = `https://birthday.bykursat.me/?q=${btoa(`${name}|${message}`)}`;
 
         const shareData = { title: 'Doğum Günü Sürprizi!', text: `${name} için bir sürprizin var!`, url };
+
         if (navigator.share) {
             try {
                 await navigator.share(shareData);
-            } catch (err) { 
+                // Kullanıcı başarıyla paylaştı, burada ek bir bildirim gerekmiyor.
+            } catch (err) {
                 if (err.name !== 'AbortError') {
-                    console.error('Paylaşım hatası:', err);
-                    copyToClipboard(url); // Paylaşım iptal edilirse kopyala
+                    console.error('Paylaşım hatası, kopyalamaya geçiliyor:', err);
+                    fallbackCopyToClipboard(url);
                 }
+                // Kullanıcı paylaşımı iptal ederse (AbortError), hiçbir şey yapma.
             }
         } else {
-            copyToClipboard(url);
+            // navigator.share desteklenmiyorsa (örn. masaüstü)
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                try {
+                    await navigator.clipboard.writeText(url);
+                    notifySuccess('Kopyalandı!');
+                } catch (err) {
+                    fallbackCopyToClipboard(url);
+                }
+            } else {
+                fallbackCopyToClipboard(url);
+            }
         }
     });
 
