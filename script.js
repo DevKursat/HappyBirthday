@@ -1,11 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Get all containers and elements
     const formContainer = document.getElementById('form-container');
+    const invitationContainer = document.getElementById('invitation-container');
     const celebrationContainer = document.getElementById('celebration-container');
+    
     const createButton = document.getElementById('create-button');
     const nameInput = document.getElementById('name-input');
     const messageInput = document.getElementById('message-input');
 
+    const invitationHeading = document.getElementById('invitation-heading');
+    const showCelebrationButton = document.getElementById('show-celebration-button');
+
     let audioContext;
+
+    // --- Core Functions (Audio, Confetti, etc.) ---
     const createAudioContext = () => {
         if (!audioContext) {
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -57,9 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const duration = 5 * 1000;
         const animationEnd = Date.now() + duration;
         const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
-        function randomInRange(min, max) {
-            return Math.random() * (max - min) + min;
-        }
+        function randomInRange(min, max) { return Math.random() * (max - min) + min; }
         const interval = setInterval(() => {
             const timeLeft = animationEnd - Date.now();
             if (timeLeft <= 0) return clearInterval(interval);
@@ -69,22 +75,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 250);
     };
 
-    const showCelebration = (name, message) => {
-        formContainer.classList.add('hidden');
+    // --- Main Application Flow ---
+
+    // 3. Start the actual celebration
+    const startTheShow = (name, message) => {
+        invitationContainer.classList.add('hidden');
         celebrationContainer.classList.remove('hidden');
+        
         document.getElementById('celebration-name').textContent = `İyi ki doğdun ${name}!`;
         document.getElementById('celebration-message').textContent = message;
+
+        playBirthdaySong(); // This is now a direct result of user interaction
+
         setTimeout(() => {
             document.querySelector('.letter-wrapper').classList.add('open');
-            playBirthdaySong();
         }, 500);
+
         setTimeout(() => {
             document.getElementById('cake-container').classList.add('visible');
             launchConfetti();
         }, 2000);
     };
 
-    const checkForCelebration = () => {
+    // 2. Check for a shared link and show the invitation
+    const checkForInvitation = () => {
         const urlParams = new URLSearchParams(window.location.search);
         const data = urlParams.get('q');
         if (data) {
@@ -92,24 +106,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 const decoded = atob(data);
                 const [name, message] = decoded.split('|');
                 if (name) {
-                    document.body.addEventListener('click', () => {
-                        if (!audioContext) {
-                            showCelebration(name, message || 'Sana harika bir yıl diliyorum!');
-                        }
+                    formContainer.classList.add('hidden');
+                    invitationContainer.classList.remove('hidden');
+                    invitationHeading.textContent = `${name}, sana bir doğum günü sürprizi var!`;
+
+                    showCelebrationButton.addEventListener('click', () => {
+                        startTheShow(name, message || 'Sana harika bir yıl diliyorum!');
                     }, { once: true });
                 }
             } catch (e) {
-                console.error('Failed to decode celebration data:', e);
+                console.error('Failed to decode invitation data:', e);
             }
         }
     };
 
+    // 1. Create and share/copy the link
     const fallbackCopyToClipboard = (text) => {
         const textArea = document.createElement('textarea');
         textArea.value = text;
-        textArea.style.position = 'fixed'; 
-        textArea.style.top = '0';
-        textArea.style.left = '0';
+        textArea.style.position = 'fixed';
         textArea.style.opacity = '0';
         document.body.appendChild(textArea);
         textArea.focus();
@@ -163,7 +178,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     await navigator.clipboard.writeText(url);
                     notifySuccess();
                 } catch (err) {
-                    console.error('Modern copy failed, trying fallback:', err);
                     if (fallbackCopyToClipboard(url)) {
                         notifySuccess();
                     } else {
@@ -180,5 +194,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    checkForCelebration();
+    // Initial check on page load
+    checkForInvitation();
 });
