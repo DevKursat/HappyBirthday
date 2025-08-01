@@ -2,9 +2,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const formContainer = document.getElementById('form-container');
     const celebrationContainer = document.getElementById('celebration-container');
     const createButton = document.getElementById('create-button');
-    const shareButton = document.getElementById('share-button');
-    const shareContainer = document.getElementById('share-container');
-    const copyFeedback = document.getElementById('copy-feedback');
     const nameInput = document.getElementById('name-input');
     const messageInput = document.getElementById('message-input');
 
@@ -95,9 +92,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const decoded = atob(data);
                 const [name, message] = decoded.split('|');
                 if (name) {
-                    // Add a user interaction listener to play audio
                     document.body.addEventListener('click', () => {
-                        if (!audioContext) { // Play only once
+                        if (!audioContext) {
                             showCelebration(name, message || 'Sana harika bir yıl diliyorum!');
                         }
                     }, { once: true });
@@ -108,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    createButton.addEventListener('click', () => {
+    createButton.addEventListener('click', async () => {
         const name = nameInput.value.trim();
         if (!name) {
             alert('Lütfen bir isim girin.');
@@ -118,16 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = `${name}|${message}`;
         const encoded = btoa(data);
         const url = `${window.location.origin}${window.location.pathname}?q=${encoded}`;
-        
-        shareButton.dataset.url = url; // Attach URL to the button
-        shareContainer.classList.remove('hidden');
-    });
 
-    shareButton.addEventListener('click', async () => {
-        const url = shareButton.dataset.url;
-        if (!url) return;
-
-        const name = nameInput.value.trim();
         const shareData = {
             title: 'Doğum Günü Sürprizi!',
             text: `${name} için bir doğum günü kartın var!`,
@@ -143,14 +130,19 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             try {
                 await navigator.clipboard.writeText(url);
-                copyFeedback.classList.remove('hidden');
-                setTimeout(() => copyFeedback.classList.add('hidden'), 2000);
+                const originalText = createButton.textContent;
+                createButton.textContent = 'Kopyalandı!';
+                createButton.disabled = true;
+                setTimeout(() => {
+                    createButton.textContent = originalText;
+                    createButton.disabled = false;
+                }, 2000);
             } catch (err) {
                 console.error('Failed to copy to clipboard:', err);
+                alert('Link kopyalanamadı. Lütfen tekrar deneyin.');
             }
         }
     });
-    
-    // Initial check on page load
+
     checkForCelebration();
 });
