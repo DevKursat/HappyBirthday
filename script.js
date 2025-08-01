@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = urlParams.get('q');
         if (data) {
             try {
-                const [name, message] = atob(data).split('|');
+                const [name, message] = decodeURIComponent(atob(data)).split('|');
                 if (name) {
                     formContainer.classList.add('hidden');
                     pinataContainer.classList.remove('hidden');
@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const name = nameInput.value.trim();
         if (!name) return alert('Lütfen bir isim girin.');
         const message = messageInput.value.trim();
-        const url = `https://birthday.bykursat.me/?q=${btoa(`${name}|${message}`)}`;
+        const url = `https://birthday.bykursat.me/?q=${btoa(encodeURIComponent(`${name}|${message}`))}`;
 
         const shareData = { title: 'Doğum Günü Sürprizi!', text: `${name} için bir sürprizin var!`, url };
 
