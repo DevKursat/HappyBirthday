@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const flame = document.getElementById('flame');
 
     const finalMessage = document.getElementById('final-message');
+    const windAnimation = document.getElementById('wind-animation');
 
     // --- Değişkenler ---
     let audioContext;
@@ -109,9 +110,11 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound('whoosh', audioContext.currentTime);
         blower.classList.remove('hidden');
         blower.classList.add('blow');
+        windAnimation.classList.remove('hidden'); // Rüzgar animasyonunu başlat
 
         setTimeout(() => {
             flame.classList.add('puff');
+            windAnimation.classList.add('hidden'); // Rüzgar animasyonunu gizle
         }, 500);
 
         setTimeout(() => {
