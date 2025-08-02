@@ -232,7 +232,8 @@ button:hover {
     text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
     z-index: 10; /* Pastanın üzerinde görünmesini sağlar */
     text-align: center;
-    margin-top: 20px; /* Pastadan biraz boşluk bırakmak için */
+    margin-top: 100px; /* Pastadan biraz boşluk bırakmak için */
+    max-width: 80%; /* Mobil uyumluluk için */
 }
 
 #wish-prompt.visible {
