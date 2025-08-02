@@ -202,11 +202,11 @@ button:hover {
 }
 
 #wish-prompt {
-    font-size: 1.8em;
+    font-size: 1.2em;
     opacity: 0;
     transition: opacity 1s ease 1s;
     position: absolute;
-    top: -100px; /* Pastanın üzerine konumlandır */
+    top: -150px; /* Pastanın üzerine konumlandır */
     left: 50%;
     transform: translateX(-50%);
     color: white;

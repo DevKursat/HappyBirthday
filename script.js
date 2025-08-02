@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
         dataArray.forEach(value => sum += value);
         const average = sum / dataArray.length;
 
-        if (average > 60) { // Eşik değeri - üfleme hassasiyeti
+        if (average > 40) { // Eşik değeri - üfleme hassasiyeti
             blowOutCandle();
         }
         if (micStream && micStream.active) {
