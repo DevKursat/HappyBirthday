@@ -28,6 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let micStream;
     let analyser;
 
+    const wishPrompt = document.getElementById('wish-prompt');
+
     // --- Ses ve Mikrofon Fonksiyonları ---
     const createAudioContext = () => {
         if (!audioContext) {
@@ -124,16 +126,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const startFinalScene = async () => {
         celebrationContainer.style.opacity = '0';
         finalMessageContainer.classList.remove('hidden');
+        wishPrompt.classList.remove('hidden'); // Make wishPrompt visible
 
         cakeContainer.style.transition = 'none';
         cakeContainer.style.bottom = '50%';
         cakeContainer.style.transform = 'translateX(-50%) translateY(50%) scale(1.5)';
         
-        // wishPrompt'u dinamik olarak oluştur ve cakeContainer içine ekle
-        const wishPrompt = document.createElement('p');
-        wishPrompt.id = 'wish-prompt';
-        cakeContainer.appendChild(wishPrompt);
-        wishPrompt.classList.add('visible'); // Element eklendikten sonra görünür yap
+        // finalMessageContainer'a cakeContainer'ı ekle (eğer henüz eklenmediyse)
+        if (!finalMessageContainer.contains(cakeContainer)) {
+            finalMessageContainer.appendChild(cakeContainer);
+        }
 
         // Mikrofonu ayarlamayı dene
         try {
@@ -149,11 +151,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         // Her durumda dokunma alternatifini ekle
         cakeContainer.addEventListener('click', blowOutCandle, { once: true });
-
-        // finalMessageContainer'a cakeContainer'ı ekle (eğer henüz eklenmediyse)
-        if (!finalMessageContainer.contains(cakeContainer)) {
-            finalMessageContainer.appendChild(cakeContainer);
-        }
     };
 
     const startCelebration = (name, message) => {
