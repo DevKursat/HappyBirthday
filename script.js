@@ -102,10 +102,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (micStream) micStream.getTracks().forEach(track => track.stop());
         cakeContainer.removeEventListener('click', blowOutCandle);
 
-        const currentWishPrompt = cakeContainer.querySelector('#wish-prompt');
-        if (currentWishPrompt) {
-            currentWishPrompt.style.opacity = '0';
-        }
         playSound('whoosh', audioContext.currentTime);
         blower.classList.remove('hidden');
         blower.classList.add('blow');
