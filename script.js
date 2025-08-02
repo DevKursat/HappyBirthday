@@ -116,6 +116,8 @@ document.addEventListener('DOMContentLoaded', () => {
             finalMessageContainer.classList.add('darken');
             cakeContainer.style.opacity = '0';
             finalMessage.classList.remove('hidden');
+            finalMessage.style.opacity = '1'; // Explicitly set opacity to 1
+            finalMessage.style.transform = 'none'; // Reset transform
         }, 2000);
     };
 
