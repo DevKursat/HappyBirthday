@@ -206,7 +206,7 @@ button:hover {
     opacity: 0;
     transition: opacity 1s ease 1s;
     position: absolute;
-    top: -50px; /* Pastanın üzerine konumlandır */
+    top: -100px; /* Pastanın üzerine konumlandır */
     left: 50%;
     transform: translateX(-50%);
     color: white;
