@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
         dataArray.forEach(value => sum += value);
         const average = sum / dataArray.length;
 
-        if (average > 50) { // Eşik değeri - üfleme hassasiyeti
+        if (average > 30) { // Eşik değeri - üfleme hassasiyeti
             blowOutCandle();
         }
         if (micStream && micStream.active) {
@@ -123,6 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
         celebrationContainer.style.opacity = '0';
         finalMessageContainer.classList.remove('hidden');
         wishPrompt.classList.remove('hidden'); // Make wishPrompt visible
+        wishPrompt.style.opacity = '1'; // Ensure it's visible
 
         cakeContainer.style.transition = 'none';
         cakeContainer.style.bottom = '50%';
