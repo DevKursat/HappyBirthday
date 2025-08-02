@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
         dataArray.forEach(value => sum += value);
         const average = sum / dataArray.length;
 
-        if (average > 30) { // Eşik değeri - üfleme hassasiyeti
+        if (average > 60) { // Eşik değeri - üfleme hassasiyeti
             blowOutCandle();
         }
         if (micStream && micStream.active) {
@@ -102,6 +102,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (micStream) micStream.getTracks().forEach(track => track.stop());
         cakeContainer.removeEventListener('click', blowOutCandle);
 
+        const currentWishPrompt = document.getElementById('wish-prompt');
+        if (currentWishPrompt) {
+            currentWishPrompt.style.opacity = '0';
+        }
         playSound('whoosh', audioContext.currentTime);
         blower.classList.remove('hidden');
         blower.classList.add('blow');
