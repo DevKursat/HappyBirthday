@@ -122,7 +122,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const startFinalScene = async () => {
         celebrationContainer.style.opacity = '0';
         finalMessageContainer.classList.remove('hidden');
-        wishPrompt.classList.add('visible');
 
         cakeContainer.style.transition = 'none';
         cakeContainer.style.bottom = '50%';
@@ -131,8 +130,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // wishPrompt'u dinamik olarak oluştur ve cakeContainer içine ekle
         const wishPrompt = document.createElement('p');
         wishPrompt.id = 'wish-prompt';
-        wishPrompt.classList.add('visible'); // Başlangıçta görünür yap
         cakeContainer.appendChild(wishPrompt);
+        wishPrompt.classList.add('visible'); // Element eklendikten sonra görünür yap
 
         // Mikrofonu ayarlamayı dene
         try {
